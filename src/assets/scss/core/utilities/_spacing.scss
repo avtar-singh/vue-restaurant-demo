@@ -29,6 +29,12 @@
 
 // Negative margins and paddings
 
+@media(max-width:768px) {
+  .ml-md-2 {
+    margin-left: 2rem;
+  }
+}
+
 @media(min-width: 992px) {
     [class*="mt--"],
     [class*="mr--"],

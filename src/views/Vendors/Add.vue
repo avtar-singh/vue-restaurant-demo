@@ -1,7 +1,7 @@
 <template>
   <div>
-    <base-header type="gradient-success" class="pb-6 pt-4"> </base-header>
-    <div class="container-fluid">
+    <base-header type="gradient-success" class="pb-4 pt-4"> </base-header>
+    <div class="container-fluid mt-5">
       <div class="row justify-content-center">
         <div class="col-lg-5 col-md-7">
           <div class="card shadow border-0">
@@ -9,6 +9,7 @@
               <form role="form">
                 <base-input placeholder="Name" v-model="vendor.name"></base-input>
                 <base-input ref="image" @change="onFileChange" type="file" v-model="image"></base-input>
+                <base-input placeholder="Address" v-model="vendor.address"></base-input>
                 <base-input placeholder="Location" v-model="vendor.location"></base-input>
                 <base-input placeholder="Category" v-model="vendor.category"></base-input>
                 <base-input placeholder="mPesa Pay Bill" v-model="vendor.mpesaPayBill"></base-input>
@@ -35,6 +36,7 @@ export default {
       vendor: {
         name: "",
         image: "",
+        address: "",
         category: "",
         location: "",
         mpesaPayBill: "",

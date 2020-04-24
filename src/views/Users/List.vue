@@ -4,21 +4,22 @@
     </base-header>
     <div class="container-fluid">
       <div class="card-shadow">
-        <div class="table-responsive" v-if="vendorList">
+        <div class="table-responsive" v-if="userList">
           <base-table
             class="table align-items-center table-flush"
             :thead-classes="type === 'dark' ? 'thead-dark' : 'thead-light'"
             tbody-classes="list"
-            :data="vendorList"
+            :data="userList"
           >
             <template slot="columns">
               <th>Name</th>
-              <th>Address</th>
-              <th>Location</th>
+              <th>Email</th>
               <th>Status</th>
-              <th>Category</th>
-              <th>mPesa Pay Bill</th>
-              <th>mPesa Payout Method</th>
+              <th>Device Token</th>
+              <th>Date of Birth</th>
+              <th>City</th>
+              <th>State</th>
+              <th>Country</th>
               <th></th>
             </template>
 
@@ -26,7 +27,7 @@
               <th scope="row">
                 <div class="media align-items-center">
                   <a href="#" class="avatar avatar-sm rounded-circle mr-3">
-                    <img alt="Image placeholder" :src="row.image" />
+                    <img :src="row.image" />
                   </a>
                   <div class="media-body">
                     <span class="name mb-0 text-sm">{{ row.name }}</span>
@@ -34,10 +35,7 @@
                 </div>
               </th>
               <td>
-                {{ row.address }}
-              </td>
-              <td>
-                {{ row.location }}
+                {{ row.email }}
               </td>
               <td>
                 <badge class="badge-dot mr-4" :type="row.status == 'active' ? 'success' : 'danger'">
@@ -46,15 +44,21 @@
                 </badge>
               </td>
              <td>
-                {{ row.category }}
+                {{ row.device_token }}
               </td>
 
               <td>
-                {{ row.mpesaPayBill }}
+                {{ parseDate(row.d_o_b) }}
               </td>
 
               <td>
-                {{ row.mpesaPayoutMethod }}
+                {{ row.city }}
+              </td>
+              <td>
+                {{ row.state }}
+              </td>
+              <td>
+                {{ row.country }}
               </td>
 
               <td class="text-right">
@@ -71,7 +75,7 @@
                   </a>
 
                   <template>
-                    <a class="cs dropdown-item" @click.prevent="handleEdit(row)">Edit</a>
+                    <a class="cs dropdown-item" @click.prevent="handleView(row)">View</a>
                     <a class="cs dropdown-item" v-if="row.status == 'active'" @click.prevent="handleBlock(row)">Block</a>
                     <a class="cs dropdown-item" v-if="row.status == 'blocked'" @click.prevent="handleUnblock(row)">Unblock</a>
                     <a class="cs dropdown-item" @click.prevent="handleDelete(row)">Delete</a>
@@ -84,7 +88,6 @@
         <div class="mt-2" v-else>
           <h5>Processing...</h5>
         </div>
-        <base-button id="add-vendor" title="Create New Vendor" type="primary" :iconOnly="true" icon="fa fa-plus" :rounded="true" @click.prevent="$router.push('/vendors/create')"></base-button>
       </div>
     </div>
   </div>
@@ -92,19 +95,19 @@
 <script>
 import swal from "sweetalert2";
 export default {
-  name: "Vendors",
+  name: "Users",
   data() {
     return {
       type: "light"
     };
   },
   methods: {
-    handleEdit(vendor) {
-      this.$router.push(`/vendors/${vendor._id}`);
+    handleView(user) {
+      this.$router.push(`/users/${user.id}`);
     },
-    handleBlock(vendor) {
+    handleBlock(user) {
       swal.fire({
-        text: "Are you sure to block this vendor?",
+        text: "Are you sure to block this user?",
         icon: "warning",
         showCancelButton: true,
         customClass: {
@@ -119,8 +122,8 @@ export default {
         this.$Progress.start();
         if (result.value) {
           this.$store
-            .dispatch("updateVendor", {
-              _id: vendor._id,
+            .dispatch("updateUser", {
+              _id: user.id,
               status: 'blocked'
             })
             .then(() => {
@@ -141,9 +144,9 @@ export default {
         }
       });
     },
-    handleUnblock(vendor) {
+    handleUnblock(user) {
       swal.fire({
-        text: "Are you sure to unblock this vendor?",
+        text: "Are you sure to unblock this user?",
         icon: "warning",
         showCancelButton: true,
         customClass: {
@@ -158,11 +161,12 @@ export default {
         this.$Progress.start();
         if (result.value) {
           this.$store
-            .dispatch("updateVendor", {
-              _id: vendor._id,
+            .dispatch("updateUser", {
+              _id: user.id,
               status: 'active'
             })
             .then(() => {
+              this.$store.dispatch("getUsers");
               this.$Progress.finish();
             })
             .catch(err => {
@@ -180,10 +184,10 @@ export default {
         }
       });
     },
-    // Delete Vendor
-    handleDelete(vendor) {
+    // Delete User
+    handleDelete(user) {
       swal.fire({
-        text: "Are you sure to delete this vendor?",
+        text: "Are you sure to delete this user?",
         icon: "warning",
         showCancelButton: true,
         customClass: {
@@ -197,9 +201,9 @@ export default {
         if (result.value) {
           // Progress Bar - Start
           this.$Progress.start();
-          // Dispatch Delete Vendor API
-          this.$store.dispatch("deleteVendor", {
-            vendor_id: vendor._id
+          // Dispatch Delete User API
+          this.$store.dispatch("deleteUser", {
+            user_id: user.id
           })
             .then(() => {
               swal.fire({
@@ -222,49 +226,37 @@ export default {
               });
               this.$Progress.fail();
             });
-          this.deleteRow(vendor);
+          this.deleteRow(user);
         }
       });
     },
-    // Delete Specific Vendor
-    deleteRow(vendor) {
-      let indexToDelete = this.vendorList.findIndex(
-        tableRow => tableRow._id === vendor._id
+    // Delete Specific User
+    deleteRow(user) {
+      let indexToDelete = this.userList.findIndex(
+        tableRow => tableRow._id === user._id
       );
       if (indexToDelete >= 0) {
-        this.vendorList.splice(indexToDelete, 1);
+        this.userList.splice(indexToDelete, 1);
       }
     },
   },
   beforeMount() {
     // Progress Bar - Start
     this.$Progress.start();
-    this.$store.dispatch("getVendors");
+    this.$store.dispatch("getUsers");
   },
   mounted() {
     // Progress Bar - Finish
     this.$Progress.finish();
   },
   computed: {
-    vendorList() {
-      return this.$store.getters.vendorList;
+    userList() {
+      return this.$store.getters.userList;
     }
   },
 };
 </script>
 <style scoped>
-#add-vendor {
-  position: fixed;
-  bottom: 35px;
-  right: 35px;
-  width: 60px;
-  height: 60px;
-}
-
-#add-vendor i {
-  font-size: 1rem;
-}
-
 .table-responsive {
   min-height: 70vh;
 }

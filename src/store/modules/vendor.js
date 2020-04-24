@@ -1,7 +1,7 @@
 import axios from "axios";
 
-const API_URL = process.env.VUE_APP_VENDOR_URL
-  ? process.env.VUE_APP_VENDOR_URL
+const API_URL = process.env.VUE_APP_AUTH_URL
+  ? process.env.VUE_APP_AUTH_URL
   : "http://127.0.0.1:8000";
 
 const state = {
@@ -107,7 +107,7 @@ const actions = {
         .then((resp) => {
           const vendor_data = resp.data;
           commit("update_vendor_sucess", vendor_data);
-          this.dispatch("getVendors", { flat: "false" });
+          this.dispatch("getVendors");
           resolve(resp);
         })
         .catch((err) => {

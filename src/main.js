@@ -16,13 +16,27 @@
 
 */
 import Vue from 'vue'
+import Axios from 'axios'
+import { httpClient } from './services/http-client'
 import App from './App.vue'
 import store from './store'
 import router from './router'
+import moment from 'moment/moment.js'
 import './registerServiceWorker'
 import ArgonDashboard from './plugins/argon-dashboard'
 import VueProgressBar from "vue-progressbar";
+// Set Global Variables
+Vue.prototype.$http = Axios;
+const token = localStorage.getItem("access_token");
 
+if (token) {
+  Vue.prototype.$http.defaults.headers.common[
+    "Authorization"
+  ] = `Bearer ${token}`;
+  httpClient.defaults.headers.common[
+    "Authorization"
+  ] = `Bearer ${token}`;
+}
 Vue.config.productionTip = false
 
 // Register Components globally
@@ -33,6 +47,15 @@ Vue.use(VueProgressBar, {
   thickness: "0.24rem",
   location: "bottom",
 });
+
+// Mixin parseDate fn
+Vue.prototype.parseDate = uDate => {
+  {
+    var str = uDate;
+    var date = moment(str);
+    return date.format("DD-MM-YYYY");
+  }
+};
 
 Vue.use(ArgonDashboard)
 new Vue({
