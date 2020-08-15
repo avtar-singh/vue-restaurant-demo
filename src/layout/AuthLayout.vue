@@ -7,7 +7,7 @@
       expand
     >
       <router-link slot="brand" class="navbar-brand" to="/">
-        <img src="@/assets/brand/Dinaro Pay 2.svg" />
+        <img src="@/assets/brand/white.png" />
       </router-link>
     </base-nav>
     <!-- Header -->

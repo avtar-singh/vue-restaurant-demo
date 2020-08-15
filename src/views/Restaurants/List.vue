@@ -4,22 +4,17 @@
     </base-header>
     <div class="container-fluid">
       <div class="card-shadow">
-        <div class="table-responsive" v-if="userList">
+        <div class="table-responsive" v-if="restaurantList">
           <base-table
             class="table align-items-center table-flush"
             :thead-classes="type === 'dark' ? 'thead-dark' : 'thead-light'"
             tbody-classes="list"
-            :data="userList"
+            :data="restaurantList"
           >
             <template slot="columns">
               <th>Name</th>
-              <th>Email</th>
-              <th>Status</th>
-              <th>Device Token</th>
-              <th>Date of Birth</th>
-              <th>City</th>
-              <th>State</th>
-              <th>Country</th>
+              <th>Location</th>
+              <th>Created At</th>
               <th></th>
             </template>
 
@@ -27,38 +22,25 @@
               <th scope="row">
                 <div class="media align-items-center">
                   <a href="#" class="avatar avatar-sm rounded-circle mr-3">
-                    <img :src="row.image" />
+                    <img v-if="row.image" alt="Image placeholder" :src="row.image" />
+                    <img v-else alt="i" src="https://via.placeholder.com/150" />
                   </a>
                   <div class="media-body">
-                    <span class="name mb-0 text-sm">{{ row.name }}</span>
+                    <span class="name mb-0 text-sm">{{ row.title }}</span>
                   </div>
                 </div>
               </th>
               <td>
-                {{ row.email }}
+                {{ row.location }}
               </td>
               <td>
-                <badge class="badge-dot mr-4" :type="row.status == 'active' ? 'success' : 'danger'">
-                  <i :class="`bg-${row.status == 'active' ? 'success' : 'danger'}`"></i>
+                {{ parseDate(row.created_at) }}
+              </td>
+              <td>
+                <badge class="badge-dot mr-4" :type="row.status == 'enable' ? 'success' : 'danger'">
+                  <i :class="`bg-${row.status == 'enable' ? 'success' : 'danger'}`"></i>
                   <span class="status">{{ row.status }}</span>
                 </badge>
-              </td>
-             <td>
-                {{ row.device_token }}
-              </td>
-
-              <td>
-                {{ parseDate(row.d_o_b) }}
-              </td>
-
-              <td>
-                {{ row.city }}
-              </td>
-              <td>
-                {{ row.state }}
-              </td>
-              <td>
-                {{ row.country }}
               </td>
 
               <td class="text-right">
@@ -75,9 +57,8 @@
                   </a>
 
                   <template>
-                    <a class="cs dropdown-item" @click.prevent="handleView(row)">View</a>
-                    <a class="cs dropdown-item" v-if="row.status == 'active'" @click.prevent="handleBlock(row)">Block</a>
-                    <a class="cs dropdown-item" v-if="row.status == 'blocked'" @click.prevent="handleUnblock(row)">Unblock</a>
+                    <a class="cs dropdown-item" v-if="row.status == 'enable'" @click.prevent="handleBlock(row)">Block</a>
+                    <a class="cs dropdown-item" v-if="row.status == 'disable'" @click.prevent="handleUnblock(row)">Unblock</a>
                     <a class="cs dropdown-item" @click.prevent="handleDelete(row)">Delete</a>
                   </template>
                 </base-dropdown>
@@ -88,6 +69,7 @@
         <div class="mt-2" v-else>
           <h5>Processing...</h5>
         </div>
+        <base-button id="add-restaurant" title="Create New Restaurant" type="primary" :iconOnly="true" icon="fa fa-plus" :rounded="true" @click.prevent="$router.push('/restaurants/create')"></base-button>
       </div>
     </div>
   </div>
@@ -95,19 +77,19 @@
 <script>
 import swal from "sweetalert2";
 export default {
-  name: "Users",
+  name: "Restaurants",
   data() {
     return {
       type: "light"
     };
   },
   methods: {
-    handleView(user) {
-      this.$router.push(`/users/${user.id}`);
+    handleEdit(restaurant) {
+      this.$router.push(`/restaurants/${restaurant._id}`);
     },
-    handleBlock(user) {
+    handleBlock(restaurant) {
       swal.fire({
-        text: "Are you sure to block this user?",
+        text: "Are you sure to block this restaurant?",
         icon: "warning",
         showCancelButton: true,
         customClass: {
@@ -122,9 +104,9 @@ export default {
         this.$Progress.start();
         if (result.value) {
           this.$store
-            .dispatch("updateUser", {
-              _id: user.id,
-              status: 'blocked'
+            .dispatch("updateRestaurant", {
+              _id: restaurant._id,
+              status: 'disable'
             })
             .then(() => {
               this.$Progress.finish();
@@ -144,9 +126,9 @@ export default {
         }
       });
     },
-    handleUnblock(user) {
+    handleUnblock(restaurant) {
       swal.fire({
-        text: "Are you sure to unblock this user?",
+        text: "Are you sure to unblock this restaurant?",
         icon: "warning",
         showCancelButton: true,
         customClass: {
@@ -161,12 +143,11 @@ export default {
         this.$Progress.start();
         if (result.value) {
           this.$store
-            .dispatch("updateUser", {
-              _id: user.id,
-              status: 'active'
+            .dispatch("updateRestaurant", {
+              _id: restaurant._id,
+              status: 'enable'
             })
             .then(() => {
-              this.$store.dispatch("getUsers");
               this.$Progress.finish();
             })
             .catch(err => {
@@ -184,10 +165,10 @@ export default {
         }
       });
     },
-    // Delete User
-    handleDelete(user) {
+    // Delete Restaurant
+    handleDelete(restaurant) {
       swal.fire({
-        text: "Are you sure to delete this user?",
+        text: "Are you sure to delete this restaurant?",
         icon: "warning",
         showCancelButton: true,
         customClass: {
@@ -201,9 +182,9 @@ export default {
         if (result.value) {
           // Progress Bar - Start
           this.$Progress.start();
-          // Dispatch Delete User API
-          this.$store.dispatch("deleteUser", {
-            user_id: user.id
+          // Dispatch Delete Restaurant API
+          this.$store.dispatch("deleteRestaurant", {
+            restaurant_id: restaurant._id
           })
             .then(() => {
               swal.fire({
@@ -226,37 +207,49 @@ export default {
               });
               this.$Progress.fail();
             });
-          this.deleteRow(user);
+          this.deleteRow(restaurant);
         }
       });
     },
-    // Delete Specific User
-    deleteRow(user) {
-      let indexToDelete = this.userList.findIndex(
-        tableRow => tableRow._id === user._id
+    // Delete Specific Restaurant
+    deleteRow(restaurant) {
+      let indexToDelete = this.restaurantList.findIndex(
+        tableRow => tableRow._id === restaurant._id
       );
       if (indexToDelete >= 0) {
-        this.userList.splice(indexToDelete, 1);
+        this.restaurantList.splice(indexToDelete, 1);
       }
     },
   },
   beforeMount() {
     // Progress Bar - Start
     this.$Progress.start();
-    this.$store.dispatch("getUsers");
+    this.$store.dispatch("getRestaurants");
   },
   mounted() {
     // Progress Bar - Finish
     this.$Progress.finish();
   },
   computed: {
-    userList() {
-      return this.$store.getters.userList;
+    restaurantList() {
+      return this.$store.getters.restaurantList;
     }
   },
 };
 </script>
 <style scoped>
+#add-restaurant {
+  position: fixed;
+  bottom: 35px;
+  right: 35px;
+  width: 60px;
+  height: 60px;
+}
+
+#add-restaurant i {
+  font-size: 1rem;
+}
+
 .table-responsive {
   min-height: 70vh;
 }

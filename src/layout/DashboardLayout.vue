@@ -7,8 +7,7 @@
     >
       <template slot="links">
 
-        <sidebar-item :link="{name: 'Users', icon: 'ni ni-circle-08 text-blue', path: '/users'}"/>
-        <sidebar-item :link="{name: 'Vendors', icon: 'ni ni-basket text-blue', path: '/vendors'}"/>
+        <sidebar-item :link="{name: 'Restaurants', icon: 'ni ni-basket text-blue', path: '/restaurants'}"/>
 
       </template>
     </side-bar>

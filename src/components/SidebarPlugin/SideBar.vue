@@ -10,7 +10,7 @@
       </navbar-toggle-button>
       <router-link class="navbar-brand" to="/">
         <img
-          src="@/assets/brand/Dinaro Pay.svg"
+          src="@/assets/brand/green.png"
           class="navbar-brand-img"
           alt="..."
         />

@@ -17,7 +17,6 @@
 */
 import Vue from 'vue'
 import Axios from 'axios'
-import { httpClient } from './services/http-client'
 import App from './App.vue'
 import store from './store'
 import router from './router'
@@ -27,16 +26,7 @@ import ArgonDashboard from './plugins/argon-dashboard'
 import VueProgressBar from "vue-progressbar";
 // Set Global Variables
 Vue.prototype.$http = Axios;
-const token = localStorage.getItem("access_token");
 
-if (token) {
-  Vue.prototype.$http.defaults.headers.common[
-    "Authorization"
-  ] = `Bearer ${token}`;
-  httpClient.defaults.headers.common[
-    "Authorization"
-  ] = `Bearer ${token}`;
-}
 Vue.config.productionTip = false
 
 // Register Components globally

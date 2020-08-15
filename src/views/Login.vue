@@ -48,37 +48,27 @@ export default {
   methods: {
     login() {
       this.$Progress.start();
-      // Dispatch Register API VueX
-      this.$store
-        .dispatch("login", {
-          email: this.email,
-          password: this.password
-        })
-        .then(() => {
-          // Check Token
-          if (localStorage.getItem('access_token') != null) {
-            // If Redirect URL
-            if (this.$route.query.redirect != null) {
-              this.$router.push(this.$route.query.redirect)
-            } else {
-              // If No Redirect URL
-              const path = "/";
-              if (this.$route.path !== path) this.$router.push(path)
-            }
-          }
-          this.$Progress.finish();
-        })
-        .catch(err => {
-          swal.fire({
-            text: `${err.response.data.error.message}`,
-            icon: "error",
-            customClass: {
-              confirmButton: 'btn btn-primary'
-            },
-            buttonsStyling: false
+      if (this.email == 'admin@restaurant-demo.com' && this.password == '123456') {
+        // Dispatch Register API VueX
+        this.$store
+          .dispatch("login", {
+            username: this.email,
+            password: this.password,
           });
-          this.$Progress.fail();
+          this.$router.push('/');
+          this.$Progress.finish();
+      } else {
+        swal.fire({
+          text: `Wrong Username or Password`,
+          icon: "error",
+          customClass: {
+            confirmButton: "btn btn-primary",
+          },
+          buttonsStyling: false,
         });
+        this.$Progress.fail();
+      }
+      
     }
   }
 };
